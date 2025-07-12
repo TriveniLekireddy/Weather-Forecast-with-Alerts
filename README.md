@@ -17,7 +17,7 @@ A full-stack weather forecasting web app built with **React** and **Express.js**
 ## 🚀 Features
 
 - 🌍 Location-based weather search
-- 🌡️ Current and 7-day weather forecast
+- 🌡️ Current and 5-day weather forecast
 - 📈 Temperature trend visualization with Chart.js
 - 🚨 Alerts for:
   - High temperature (> 40°C)
