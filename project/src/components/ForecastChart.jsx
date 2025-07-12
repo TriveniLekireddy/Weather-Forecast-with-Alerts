@@ -38,7 +38,8 @@ const ForecastChart = ({ forecast }) => {
     );
   }
 
-  const processedData = forecast.list.slice(0, 24).map(item => ({
+  //const processedData = forecast.list.slice(0, 24).map(item => ({
+  const processedData = forecast.list.slice(1, 25).map(item => ({
     time: new Date(item.dt * 1000).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
