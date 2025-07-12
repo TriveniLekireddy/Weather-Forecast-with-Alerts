@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import WeatherCard from './WeatherCard';
 import ForecastChart from './ForecastChart';
+import CurrentWeatherChart from './CurrentWeatherChart';
 import AlertPanel from './AlertPanel';
 import SearchBar from './SearchBar';
 import { LogOut, Sun, Moon, Settings, MapPin } from 'lucide-react';
@@ -178,8 +179,20 @@ const WeatherDashboard = () => {
         {/* Weather Content */}
         {currentWeather && !loading && (
           <div className="space-y-8">
-            {/* Current Weather */}
+            {/* Current Weather Card */}
             <WeatherCard weather={currentWeather} />
+
+            {/* Current Weather Chart */}
+            <div className={`${
+              theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'
+            } backdrop-blur-lg rounded-2xl p-6 shadow-xl`}>
+              <h2 className={`text-2xl font-bold mb-6 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-800'
+              }`}>
+                Current Weather Chart
+              </h2>
+              <CurrentWeatherChart weather={currentWeather} />
+            </div>
             
             {/* Forecast Chart */}
             {forecast && (
