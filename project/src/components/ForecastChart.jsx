@@ -38,8 +38,8 @@ const ForecastChart = ({ forecast }) => {
     );
   }
 
-  //const processedData = forecast.list.slice(0, 24).map(item => ({
-  const processedData = forecast.list.slice(1, 25).map(item => ({
+  // Skip first 3 forecast entries to avoid overlap
+  const processedData = forecast.list.slice(3, 27).map(item => ({
     time: new Date(item.dt * 1000).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
@@ -50,7 +50,7 @@ const ForecastChart = ({ forecast }) => {
     }),
     temp: Math.round(item.main.temp),
     humidity: item.main.humidity,
-    windSpeed: Math.round(item.wind.speed * 3.6),
+    windSpeed: Math.round(item.wind.speed * 3.6), // m/s to km/h
     pressure: item.main.pressure
   }));
 
@@ -174,31 +174,32 @@ const ForecastChart = ({ forecast }) => {
 
   return (
     <div className="space-y-6">
+      {/* Chart toggle */}
       <div className="flex justify-end items-center space-x-3 mb-4">
-  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-    {chartType === 'line' ? 'Line Chart' : 'Bar Chart'}
-  </span>
-  <label className="relative inline-flex items-center cursor-pointer">
-    <input
-      type="checkbox"
-      checked={chartType === 'bar'}
-      onChange={() => setChartType(chartType === 'line' ? 'bar' : 'line')}
-      className="sr-only peer"
-    />
-    <div
-      className={`w-11 h-6 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-colors ${
-        theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'
-      }`}
-    ></div>
-    <div
-      className={`absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform ${
-        chartType === 'bar' ? 'translate-x-5' : ''
-      }`}
-    ></div>
-  </label>
-</div>
+        <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+          {chartType === 'line' ? 'Line Chart' : 'Bar Chart'}
+        </span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={chartType === 'bar'}
+            onChange={() => setChartType(chartType === 'line' ? 'bar' : 'line')}
+            className="sr-only peer"
+          />
+          <div
+            className={`w-11 h-6 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-colors ${
+              theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'
+            }`}
+          ></div>
+          <div
+            className={`absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform ${
+              chartType === 'bar' ? 'translate-x-5' : ''
+            }`}
+          ></div>
+        </label>
+      </div>
 
-
+      {/* Main chart */}
       <div className="h-96">
         {chartType === 'line' ? (
           <Line data={chartData} options={options} />
@@ -206,49 +207,9 @@ const ForecastChart = ({ forecast }) => {
           <Bar data={chartData} options={options} />
         )}
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {forecast.list.slice(0, 8).map((item, index) => (
-          <div
-            key={index}
-            className={`${
-              theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100/50'
-            } rounded-xl p-4 text-center`}
-          >
-            <p
-              className={`text-sm ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-              }`}
-            >
-              {new Date(item.dt * 1000).toLocaleDateString('en-US', {
-                weekday: 'short',
-                hour: '2-digit'
-              })}
-            </p>
-            <img
-              src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
-              alt={item.weather[0].description}
-              className="w-12 h-12 mx-auto"
-            />
-            <p
-              className={`text-lg font-bold ${
-                theme === 'dark' ? 'text-white' : 'text-gray-800'
-              }`}
-            >
-              {Math.round(item.main.temp)}°C
-            </p>
-            <p
-              className={`text-xs ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-              }`}
-            >
-              {item.weather[0].description}
-            </p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
 
 export default ForecastChart;
+
