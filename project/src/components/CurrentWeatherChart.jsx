@@ -104,3 +104,4 @@ const CurrentWeatherChart = ({ weather }) => {
 };
 
 export default CurrentWeatherChart;
+
