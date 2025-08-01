@@ -24,16 +24,12 @@ const WeatherDashboard = () => {
 
       const weatherResponse = await axios.get(
         `https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const forecastResponse = await axios.get(
         `https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setWeather(weatherResponse.data);
@@ -127,7 +123,7 @@ const WeatherDashboard = () => {
           >
             Current Weather
           </h2>
-          <WeatherChart forecast={forecast} unit={unit} theme={theme} />
+          <CurrentWeatherChart forecast={forecast} unit={unit} theme={theme} />
         </div>
       )}
     </div>
@@ -135,6 +131,7 @@ const WeatherDashboard = () => {
 };
 
 export default WeatherDashboard;
+
 
 
 
