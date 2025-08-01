@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
-import toast from 'react-hot-toast';
 import WeatherChart from './WeatherChart';
 import WeatherCard from './WeatherCard';
 
