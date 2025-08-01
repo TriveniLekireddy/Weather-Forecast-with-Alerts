@@ -29,187 +29,204 @@ ChartJS.register(
 const ForecastChart = ({ forecast }) => {
   const { theme } = useTheme();
   const [chartType, setChartType] = useState('line');
+  const [selectedMetric, setSelectedMetric] = useState('temperature');
+  const [showAll, setShowAll] = useState(false);
 
   if (!forecast || !forecast.list || !Array.isArray(forecast.list)) {
-    return (
-      <div className="text-center text-sm text-gray-400 dark:text-gray-500">
-        Forecast data not available yet.
-      </div>
-    );
+    return <p className="text-center text-gray-500 dark:text-gray-400">No forecast data available</p>;
   }
 
-  // Skip first 3 forecast entries to avoid overlap
-  const processedData = forecast.list.slice(3, 27).map(item => ({
-    time: new Date(item.dt * 1000).toLocaleTimeString('en-US', {
+  const processedData = forecast.list.map(item => ({
+    time: new Date(item.dt * 1000).toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
       hour: '2-digit',
       minute: '2-digit'
     }),
-    date: new Date(item.dt * 1000).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    }),
-    temp: Math.round(item.main.temp),
+    temp: item.main.temp,
     humidity: item.main.humidity,
-    windSpeed: Math.round(item.wind.speed * 3.6), // m/s to km/h
+    windSpeed: item.wind.speed,
     pressure: item.main.pressure
   }));
 
-  const chartData = {
-    labels: processedData.map(item => item.time),
-    datasets: [
-      {
-        label: 'Temperature (°C)',
-        data: processedData.map(item => item.temp),
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.7)' : 'rgba(59, 130, 246, 0.1)',
-        fill: chartType === 'line',
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: 'rgb(59, 130, 246)',
-        pointBorderColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-        pointBorderWidth: 2,
-        type: chartType
-      },
-      {
-        label: 'Humidity (%)',
-        data: processedData.map(item => item.humidity),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: chartType === 'bar' ? 'rgba(34, 197, 94, 0.7)' : 'rgba(34, 197, 94, 0.1)',
-        fill: false,
-        tension: 0.4,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        pointBackgroundColor: 'rgb(34, 197, 94)',
-        pointBorderColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-        pointBorderWidth: 2,
-        yAxisID: 'y1',
-        type: chartType
-      }
-    ]
+  const getMetricDataset = () => {
+    switch (selectedMetric) {
+      case 'temperature':
+        return [{
+          label: 'Temperature (°C)',
+          data: processedData.map(item => item.temp),
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.7)' : 'rgba(59, 130, 246, 0.1)',
+          fill: chartType === 'line',
+          type: chartType,
+          yAxisID: 'y'
+        }];
+      case 'humidity':
+        return [{
+          label: 'Humidity (%)',
+          data: processedData.map(item => item.humidity),
+          borderColor: 'rgb(34, 197, 94)',
+          backgroundColor: chartType === 'bar' ? 'rgba(34, 197, 94, 0.7)' : 'rgba(34, 197, 94, 0.1)',
+          fill: false,
+          type: chartType,
+          yAxisID: 'y1'
+        }];
+      case 'wind':
+        return [{
+          label: 'Wind Speed (km/h)',
+          data: processedData.map(item => item.windSpeed),
+          borderColor: 'rgb(239, 68, 68)',
+          backgroundColor: chartType === 'bar' ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.1)',
+          fill: false,
+          type: chartType,
+          yAxisID: 'y1'
+        }];
+      case 'pressure':
+        return [{
+          label: 'Pressure (hPa)',
+          data: processedData.map(item => item.pressure),
+          borderColor: 'rgb(168, 85, 247)',
+          backgroundColor: chartType === 'bar' ? 'rgba(168, 85, 247, 0.7)' : 'rgba(168, 85, 247, 0.1)',
+          fill: false,
+          type: chartType,
+          yAxisID: 'y1'
+        }];
+      default:
+        return [];
+    }
   };
 
-  const options = {
+  const chartData = {
+    labels: processedData.map(item => item.time),
+    datasets: showAll
+      ? [
+          {
+            label: 'Temperature (°C)',
+            data: processedData.map(item => item.temp),
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: chartType === 'bar' ? 'rgba(59, 130, 246, 0.7)' : 'rgba(59, 130, 246, 0.1)',
+            fill: chartType === 'line',
+            type: chartType,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Humidity (%)',
+            data: processedData.map(item => item.humidity),
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: chartType === 'bar' ? 'rgba(34, 197, 94, 0.7)' : 'rgba(34, 197, 94, 0.1)',
+            fill: false,
+            type: chartType,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'Wind Speed (km/h)',
+            data: processedData.map(item => item.windSpeed),
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: chartType === 'bar' ? 'rgba(239, 68, 68, 0.7)' : 'rgba(239, 68, 68, 0.1)',
+            fill: false,
+            type: chartType,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'Pressure (hPa)',
+            data: processedData.map(item => item.pressure),
+            borderColor: 'rgb(168, 85, 247)',
+            backgroundColor: chartType === 'bar' ? 'rgba(168, 85, 247, 0.7)' : 'rgba(168, 85, 247, 0.1)',
+            fill: false,
+            type: chartType,
+            yAxisID: 'y1'
+          }
+        ]
+      : getMetricDataset()
+  };
+
+  const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
     interaction: {
       mode: 'index',
       intersect: false
     },
+    stacked: false,
     plugins: {
       legend: {
-        position: 'top',
         labels: {
-          color: theme === 'dark' ? '#e5e7eb' : '#374151',
-          usePointStyle: true,
-          pointStyle: 'circle',
-          padding: 20,
-          font: { size: 14, weight: 500 }
+          color: theme === 'dark' ? '#fff' : '#000'
         }
       },
-      tooltip: {
-        backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-        titleColor: theme === 'dark' ? '#e5e7eb' : '#374151',
-        bodyColor: theme === 'dark' ? '#e5e7eb' : '#374151',
-        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db',
-        borderWidth: 1,
-        cornerRadius: 8,
-        padding: 12,
-        callbacks: {
-          title: context => {
-            const index = context[0].dataIndex;
-            return `${processedData[index].date} at ${processedData[index].time}`;
-          },
-          afterBody: context => {
-            const index = context[0].dataIndex;
-            return [
-              `Wind Speed: ${processedData[index].windSpeed} km/h`,
-              `Pressure: ${processedData[index].pressure} hPa`
-            ];
-          }
-        }
+      title: {
+        display: true,
+        text: 'Forecast Data',
+        color: theme === 'dark' ? '#fff' : '#000'
       }
     },
     scales: {
       x: {
-        grid: {
-          color: theme === 'dark' ? '#374151' : '#e5e7eb'
-        },
         ticks: {
-          color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-          font: { size: 12 },
-          maxRotation: 45,
-          minRotation: 45
+          color: theme === 'dark' ? '#fff' : '#000'
         }
       },
       y: {
+        type: 'linear',
+        position: 'left',
+        ticks: {
+          color: theme === 'dark' ? '#fff' : '#000'
+        },
         title: {
           display: true,
           text: 'Temperature (°C)',
-          color: theme === 'dark' ? '#e5e7eb' : '#374151',
-          font: { size: 14, weight: 500 }
-        },
-        grid: {
-          color: theme === 'dark' ? '#374151' : '#e5e7eb'
-        },
-        ticks: {
-          color: theme === 'dark' ? '#9ca3af' : '#6b7280'
+          color: theme === 'dark' ? '#fff' : '#000'
         }
       },
       y1: {
+        type: 'linear',
         position: 'right',
-        title: {
-          display: true,
-          text: 'Humidity (%)',
-          color: theme === 'dark' ? '#e5e7eb' : '#374151',
-          font: { size: 14, weight: 500 }
+        grid: {
+          drawOnChartArea: false
         },
-        grid: { drawOnChartArea: false },
         ticks: {
-          color: theme === 'dark' ? '#9ca3af' : '#6b7280'
+          color: theme === 'dark' ? '#fff' : '#000'
         }
       }
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Chart toggle */}
-      <div className="flex justify-end items-center space-x-3 mb-4">
-        <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-          {chartType === 'line' ? 'Line Chart' : 'Bar Chart'}
-        </span>
-        <label className="relative inline-flex items-center cursor-pointer">
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="flex items-center justify-between mb-4">
+        <div className="space-x-3">
+          {!showAll && ['temperature', 'humidity', 'wind', 'pressure'].map(metric => (
+            <button
+              key={metric}
+              className={`px-3 py-1 rounded text-sm font-medium ${
+                selectedMetric === metric
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+              onClick={() => setSelectedMetric(metric)}
+            >
+              {metric.charAt(0).toUpperCase() + metric.slice(1)}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Show All</span>
           <input
             type="checkbox"
-            checked={chartType === 'bar'}
-            onChange={() => setChartType(chartType === 'line' ? 'bar' : 'line')}
-            className="sr-only peer"
+            checked={showAll}
+            onChange={() => setShowAll(!showAll)}
+            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
           />
-          <div
-            className={`w-11 h-6 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-colors ${
-              theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'
-            }`}
-          ></div>
-          <div
-            className={`absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform ${
-              chartType === 'bar' ? 'translate-x-5' : ''
-            }`}
-          ></div>
-        </label>
+        </div>
       </div>
-
-      {/* Main chart */}
-      <div className="h-96">
-        {chartType === 'line' ? (
-          <Line data={chartData} options={options} />
-        ) : (
-          <Bar data={chartData} options={options} />
-        )}
-      </div>
+      {chartType === 'line' ? (
+        <Line options={chartOptions} data={chartData} />
+      ) : (
+        <Bar options={chartOptions} data={chartData} />
+      )}
     </div>
   );
 };
 
 export default ForecastChart;
+
 
