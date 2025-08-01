@@ -1,117 +1,134 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
-import toast from 'react-hot-toast';
-import CurrentWeatherChart from './CurrentWeatherChart';
-import WeatherCard from './WeatherCard';
+import React, { useState } from 'react';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { useTheme } from '../contexts/ThemeContext';
 
-const WeatherDashboard = () => {
-  const [city, setCity] = useState('');
-  const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState(null);
-  const [unit, setUnit] = useState('metric');
-  const [theme, setTheme] = useState('light');
-  const navigate = useNavigate();
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
-  const fetchWeatherData = async (cityName) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Unauthorized! Please login again.');
-        navigate('/');
-        return;
+const CurrentWeatherChart = ({ forecast }) => {
+  const { theme } = useTheme();
+  const [chartType, setChartType] = useState('line');
+  const [selectedMetric, setSelectedMetric] = useState('temp');
+
+  if (!forecast || !forecast.list || !Array.isArray(forecast.list)) return null;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const todayData = forecast.list.filter(item => item.dt_txt.startsWith(today));
+
+  const labels = todayData.map(item => {
+    const time = new Date(item.dt_txt).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    return time;
+  });
+
+  const metricLabels = {
+    temp: 'Temperature (°C)',
+    humidity: 'Humidity (%)',
+    wind: 'Wind Speed (m/s)'
+  };
+
+  const metricData = todayData.map(item => {
+    if (selectedMetric === 'temp') return item.main.temp;
+    if (selectedMetric === 'humidity') return item.main.humidity;
+    if (selectedMetric === 'wind') return item.wind.speed;
+    return 0;
+  });
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: metricLabels[selectedMetric],
+        data: metricData,
+        borderColor: '#3b82f6',
+        backgroundColor: theme === 'dark' ? '#1e40af' : '#93c5fd',
+        fill: true,
+        tension: 0.4
       }
+    ]
+  };
 
-      const weatherResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const forecastResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setWeather(weatherResponse.data);
-      setForecast(forecastResponse.data);
-    } catch (error) {
-      toast.error('Failed to fetch weather data');
-      console.error(error);
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: theme === 'dark' ? 'white' : 'black'
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: theme === 'dark' ? 'white' : 'black'
+        }
+      },
+      y: {
+        ticks: {
+          color: theme === 'dark' ? 'white' : 'black'
+        }
+      }
     }
   };
-
-  const handleSearch = () => {
-    if (city.trim()) {
-      fetchWeatherData(city);
-    } else {
-      toast.error('Please enter a city name');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
-
-  useEffect(() => {
-    const defaultCity = 'Kukatpalli';
-    fetchWeatherData(defaultCity);
-  }, []);
 
   return (
-    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-500`}>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Weather App</h1>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun className="text-yellow-500" /> : <Moon className="text-blue-800" />}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+    <div className="p-4 rounded-lg shadow-lg bg-white dark:bg-gray-800">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-white">
+        Today's Hourly Forecast
+      </h2>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search for a city..."
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg w-full md:w-96"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+      <div className="flex justify-center gap-4 mb-4">
+        <select
+          value={selectedMetric}
+          onChange={e => setSelectedMetric(e.target.value)}
+          className="px-3 py-1 rounded border bg-white dark:bg-gray-700 dark:text-white"
         >
-          Search
+          <option value="temp">Temperature</option>
+          <option value="humidity">Humidity</option>
+          <option value="wind">Wind Speed</option>
+        </select>
+
+        <button
+          onClick={() => setChartType(chartType === 'line' ? 'bar' : 'line')}
+          className="px-4 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Toggle Chart Type
         </button>
       </div>
 
-      {weather && <WeatherCard weather={weather} theme={theme} />}
-      {weather && (
-        <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}>
-          <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-            Current Weather
-          </h2>
-          <CurrentWeatherChart forecast={forecast} unit={unit} theme={theme} />
-        </div>
+      {chartType === 'line' ? (
+        <Line data={data} options={options} />
+      ) : (
+        <Bar data={data} options={options} />
       )}
     </div>
   );
 };
 
-export default WeatherDashboard;
+export default CurrentWeatherChart;
+
 
