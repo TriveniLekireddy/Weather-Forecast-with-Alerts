@@ -43,8 +43,7 @@ const WeatherCard = () => {
         </p>
       </div>
 
-      {/* 🔥 Safe ForecastChart Rendering */}
-      <ForecastChart forecast={forecast} />
+    
     </div>
   );
 };
