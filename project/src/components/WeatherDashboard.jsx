@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
-import WeatherChart from './WeatherChart';
+import CurrentWeatherChart from './CurrentWeatherChart';
 import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
