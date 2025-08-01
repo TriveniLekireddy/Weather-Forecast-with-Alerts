@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
-import WeatherChart from './WeatherChart'; // Forecast chart
+import ForecastChart from './ForecastChart'; // Forecast chart
 import WeatherCard from './WeatherCard'; // Current weather summary card
 
 const WeatherDashboard = () => {
