@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
-import CurrentWeatherChart from './CurrentWeatherChart';
+import toast from 'react-hot-toast';
+import WeatherChart from './WeatherChart';
 import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
@@ -17,29 +18,23 @@ const WeatherDashboard = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Unauthorized! Please login again.');
+        toast.error('Unauthorized! Please login again.');
         navigate('/');
         return;
       }
 
-      const weatherResponse = await axios.get(
-        `https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const weatherResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-      const forecastResponse = await axios.get(
-        `https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const forecastResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       setWeather(weatherResponse.data);
       setForecast(forecastResponse.data);
     } catch (error) {
-      alert('Failed to fetch weather data');
+      toast.error('Failed to fetch weather data');
       console.error(error);
     }
   };
@@ -48,7 +43,7 @@ const WeatherDashboard = () => {
     if (city.trim()) {
       fetchWeatherData(city);
     } else {
-      alert('Please enter a city name');
+      toast.error('Please enter a city name');
     }
   };
 
@@ -69,11 +64,7 @@ const WeatherDashboard = () => {
   }, []);
 
   return (
-    <div
-      className={`min-h-screen p-6 ${
-        theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'
-      } transition-colors duration-500`}
-    >
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-500`}>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Weather App</h1>
         <div className="flex items-center gap-4">
@@ -82,11 +73,7 @@ const WeatherDashboard = () => {
             className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
             aria-label="Toggle Theme"
           >
-            {theme === 'dark' ? (
-              <Sun className="text-yellow-500" />
-            ) : (
-              <Moon className="text-blue-800" />
-            )}
+            {theme === 'dark' ? <Sun className="text-yellow-500" /> : <Moon className="text-blue-800" />}
           </button>
           <button
             onClick={handleLogout}
@@ -115,19 +102,11 @@ const WeatherDashboard = () => {
 
       {weather && <WeatherCard weather={weather} theme={theme} />}
       {weather && (
-        <div
-          className={`${
-            theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'
-          } backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}
-        >
-          <h2
-            className={`text-2xl font-bold mb-6 ${
-              theme === 'dark' ? 'text-white' : 'text-gray-800'
-            }`}
-          >
+        <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}>
+          <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
             Current Weather
           </h2>
-          <CurrentWeatherChart forecast={forecast} />
+          <WeatherChart forecast={forecast} unit={unit} theme={theme} />
         </div>
       )}
     </div>
@@ -135,10 +114,3 @@ const WeatherDashboard = () => {
 };
 
 export default WeatherDashboard;
-
-
-
-
-
-
-
