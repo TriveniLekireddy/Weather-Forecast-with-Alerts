@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { WeatherContext } from '../contexts/WeatherContext';
-import ForecastChart from './ForecastChart';
+
 
 const WeatherCard = () => {
   const { currentWeather, forecast, loading, error } = useContext(WeatherContext);
