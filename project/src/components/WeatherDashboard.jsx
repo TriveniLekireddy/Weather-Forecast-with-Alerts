@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import WeatherCard from './WeatherCard';
 import ForecastChart from './ForecastChart';
-import CurrentWeatherChart from './CurrentWeatherChart';
+//import CurrentWeatherChart from './CurrentWeatherChart';
 import AlertPanel from './AlertPanel';
 import SearchBar from './SearchBar';
 import { LogOut, Sun, Moon, Settings, MapPin } from 'lucide-react';
@@ -194,7 +194,7 @@ const WeatherDashboard = () => {
           </div>
         )}
 
-        {/* Settings Panel */}
+        {/*  {/* Settings Panel */}
         {showSettings && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-2xl p-6 w-full max-w-md mx-4`}>
@@ -227,7 +227,7 @@ const WeatherDashboard = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </div> */}
         )}
       </main>
     </div>
