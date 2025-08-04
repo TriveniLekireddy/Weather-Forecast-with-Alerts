@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, LocateIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ForecastChart from './ForecastChart';
+import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState(null);
+  const [unit, setUnit] = useState('metric');
   const [theme, setTheme] = useState('light');
+  const [activeMetric, setActiveMetric] = useState('temperature');
+  const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
 
   const fetchWeatherData = async (cityName) => {
@@ -21,18 +25,18 @@ const WeatherDashboard = () => {
         return;
       }
 
-      const weatherRes = await axios.get(
+      const weatherResponse = await axios.get(
         `https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const forecastRes = await axios.get(
+      const forecastResponse = await axios.get(
         `https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setWeather(weatherRes.data);
-      setForecast(forecastRes.data);
+      setWeather(weatherResponse.data);
+      setForecast(forecastResponse.data);
     } catch (error) {
       toast.error('Failed to fetch weather data');
       console.error(error);
@@ -63,61 +67,75 @@ const WeatherDashboard = () => {
   }, []);
 
   return (
-    <div className={`min-h-screen px-6 py-4 ${theme === 'dark' ? 'bg-[#0f172a] text-white' : 'bg-[#f1f5f9] text-black'} transition-colors duration-500`}>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 bg-white dark:bg-gray-900 p-4 rounded-xl shadow">
-        <h1 className="text-2xl font-bold">Weather App</h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun className="text-yellow-400" /> : <Moon className="text-blue-800" />}
+    <div className={`min-h-screen p-6 transition duration-500 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-100 to-purple-100 text-gray-900'}`}>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Weather App</h1>
+        <div className="flex items-center gap-4">
+          <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+            {theme === 'dark' ? <Sun className="text-yellow-400" /> : <Moon className="text-blue-900" />}
           </button>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-          >
+          <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
             Logout
           </button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search for a city..."
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg w-full md:w-96"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
+      <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
+        <div className="flex items-center w-full md:w-[400px] border border-gray-300 dark:border-gray-600 rounded-lg px-3">
+          <LocateIcon className="text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search for a city..."
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="p-2 bg-transparent outline-none w-full"
+          />
+        </div>
+        <button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
           Search
         </button>
       </div>
 
-      {/* Weather Info */}
       {weather && (
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">
-            {weather.name}, {weather.sys.country}
-          </h2>
-          <p className="capitalize text-lg text-gray-600 dark:text-gray-300">{weather.weather[0].description}</p>
-          <p className="text-5xl text-blue-600 font-bold dark:text-blue-400 mt-2">
-            {Math.round(weather.main.temp)}°C
-          </p>
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold">{weather.name}, {weather.sys?.country}</h2>
+          <p className="capitalize text-lg">{weather.weather?.[0]?.description}</p>
+          <p className="text-5xl text-blue-600 font-bold">{Math.round(weather.main?.temp)}°C</p>
         </div>
       )}
 
-      {/* Forecast Chart */}
       {forecast && (
-        <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}>
-          <ForecastChart forecast={forecast} theme={theme} />
+        <div className={`rounded-2xl p-6 shadow-xl transition-all duration-500 ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg`}>
+          <div className="flex flex-wrap justify-center items-center gap-4 mb-6">
+            {['temperature', 'humidity', 'wind', 'pressure'].map((metric) => (
+              <button
+                key={metric}
+                onClick={() => setActiveMetric(metric)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  activeMetric === metric
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-white'
+                }`}
+              >
+                {metric.charAt(0).toUpperCase() + metric.slice(1)}
+              </button>
+            ))}
+            <label className="flex items-center gap-2">
+              <span>Show All</span>
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={() => setShowAll((prev) => !prev)}
+              />
+            </label>
+          </div>
+          <ForecastChart
+            forecast={forecast}
+            unit={unit}
+            theme={theme}
+            activeMetric={activeMetric}
+            showAll={showAll}
+          />
         </div>
       )}
     </div>
@@ -125,6 +143,7 @@ const WeatherDashboard = () => {
 };
 
 export default WeatherDashboard;
+
 
 
 
