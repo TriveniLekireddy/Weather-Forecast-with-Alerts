@@ -181,13 +181,6 @@ const WeatherDashboard = () => {
             {/* Current Weather */}
             <WeatherCard weather={currentWeather} />
             
-            {/* Current Weather Chart */}
-            <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl`}>
-              <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-                Current Weather Chart
-              </h2>
-              <CurrentWeatherChart weather={currentWeather} />
-            </div>
 
             {/* Forecast Chart */}
             {forecast && (
