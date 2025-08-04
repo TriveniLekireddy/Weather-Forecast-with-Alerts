@@ -4,13 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ForecastChart from './ForecastChart';
-import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState(null);
-  const [unit, setUnit] = useState('metric');
   const [theme, setTheme] = useState('light');
   const navigate = useNavigate();
 
@@ -23,16 +21,18 @@ const WeatherDashboard = () => {
         return;
       }
 
-      const weatherResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const weatherRes = await axios.get(
+        `https://weather-backend-pi-two.vercel.app/api/weather?city=${cityName}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      const forecastResponse = await axios.get(`https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const forecastRes = await axios.get(
+        `https://weather-backend-pi-two.vercel.app/api/forecast?city=${cityName}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      setWeather(weatherResponse.data);
-      setForecast(forecastResponse.data);
+      setWeather(weatherRes.data);
+      setForecast(forecastRes.data);
     } catch (error) {
       toast.error('Failed to fetch weather data');
       console.error(error);
@@ -59,21 +59,21 @@ const WeatherDashboard = () => {
   };
 
   useEffect(() => {
-    const defaultCity = 'Kukatpalli';
-    fetchWeatherData(defaultCity);
+    fetchWeatherData('Kukatpalli');
   }, []);
 
   return (
-    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-500`}>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Weather App</h1>
-        <div className="flex items-center gap-4">
+    <div className={`min-h-screen px-6 py-4 ${theme === 'dark' ? 'bg-[#0f172a] text-white' : 'bg-[#f1f5f9] text-black'} transition-colors duration-500`}>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6 bg-white dark:bg-gray-900 p-4 rounded-xl shadow">
+        <h1 className="text-2xl font-bold">Weather App</h1>
+        <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-200 dark:bg-gray-700"
             aria-label="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun className="text-yellow-500" /> : <Moon className="text-blue-800" />}
+            {theme === 'dark' ? <Sun className="text-yellow-400" /> : <Moon className="text-blue-800" />}
           </button>
           <button
             onClick={handleLogout}
@@ -84,6 +84,7 @@ const WeatherDashboard = () => {
         </div>
       </div>
 
+      {/* Search */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
         <input
           type="text"
@@ -100,14 +101,23 @@ const WeatherDashboard = () => {
         </button>
       </div>
 
-      {weather && <WeatherCard weather={weather} theme={theme} />}
+      {/* Weather Info */}
+      {weather && (
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold">
+            {weather.name}, {weather.sys.country}
+          </h2>
+          <p className="capitalize text-lg text-gray-600 dark:text-gray-300">{weather.weather[0].description}</p>
+          <p className="text-5xl text-blue-600 font-bold dark:text-blue-400 mt-2">
+            {Math.round(weather.main.temp)}°C
+          </p>
+        </div>
+      )}
 
+      {/* Forecast Chart */}
       {forecast && (
         <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}>
-          <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-            Forecast Chart
-          </h2>
-          <ForecastChart forecast={forecast} unit={unit} theme={theme} />
+          <ForecastChart forecast={forecast} theme={theme} />
         </div>
       )}
     </div>
@@ -115,6 +125,7 @@ const WeatherDashboard = () => {
 };
 
 export default WeatherDashboard;
+
 
 
 
