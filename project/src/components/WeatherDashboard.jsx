@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
-import WeatherChart from './WeatherChart';
+import ForecastChart from './ForecastChart';
 import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
@@ -107,7 +107,7 @@ const WeatherDashboard = () => {
           <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
             Forecast Chart
           </h2>
-          <WeatherChart forecast={forecast} unit={unit} theme={theme} />
+          <ForecastChart forecast={forecast} unit={unit} theme={theme} />
         </div>
       )}
     </div>
