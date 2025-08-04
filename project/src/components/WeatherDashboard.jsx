@@ -4,10 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import WeatherCard from './WeatherCard';
 import ForecastChart from './ForecastChart';
-//import CurrentWeatherChart from './CurrentWeatherChart';
 import AlertPanel from './AlertPanel';
 import SearchBar from './SearchBar';
-import { LogOut, Sun, Moon, Settings, MapPin } from 'lucide-react';
+import { LogOut, Sun, Moon, MapPin } from 'lucide-react'; 
 
 const WeatherDashboard = () => {
   const { user, logout } = useAuth();
@@ -23,7 +22,6 @@ const WeatherDashboard = () => {
     fetchWeatherByCoordinates
   } = useWeather();
 
-  const [showSettings, setShowSettings] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
 
   useEffect(() => {
@@ -113,17 +111,6 @@ const WeatherDashboard = () => {
                 {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
               
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                className={`p-2 rounded-lg ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                } transition-colors`}
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-              
               <div className="flex items-center space-x-2">
                 <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-gray-700'}`}>
                   {user?.username}
@@ -180,7 +167,6 @@ const WeatherDashboard = () => {
           <div className="space-y-8">
             {/* Current Weather */}
             <WeatherCard weather={currentWeather} />
-            
 
             {/* Forecast Chart */}
             {forecast && (
@@ -193,48 +179,13 @@ const WeatherDashboard = () => {
             )}
           </div>
         )}
-
-        {/* Settings Panel */}
-        {showSettings && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-2xl p-6 w-full max-w-md mx-4`}>
-              <h3 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
-                Settings
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className={theme === 'dark' ? 'text-white' : 'text-gray-700'}>
-                    Dark Mode
-                  </span>
-                  <button
-                    onClick={toggleTheme}
-                    className={`w-12 h-6 rounded-full ${
-                      theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
-                    } relative transition-colors`}
-                  >
-                    <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform ${
-                      theme === 'dark' ? 'translate-x-6' : 'translate-x-0.5'
-                    }`} />
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
 };
 
 export default WeatherDashboard;
+
 
 
 
