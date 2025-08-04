@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
-import ForecastChart from './ForecastChart'; // Forecast chart
-import WeatherCard from './WeatherCard'; // Current weather summary card
+import WeatherChart from './WeatherChart';
+import WeatherCard from './WeatherCard';
 
 const WeatherDashboard = () => {
   const [city, setCity] = useState('');
@@ -59,17 +59,9 @@ const WeatherDashboard = () => {
   };
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('weather_app_theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
     const defaultCity = 'Kukatpalli';
     fetchWeatherData(defaultCity);
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('weather_app_theme', theme);
-  }, [theme]);
 
   return (
     <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'} transition-colors duration-500`}>
@@ -109,6 +101,7 @@ const WeatherDashboard = () => {
       </div>
 
       {weather && <WeatherCard weather={weather} theme={theme} />}
+
       {forecast && (
         <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-lg rounded-2xl p-6 shadow-xl mt-6`}>
           <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
@@ -122,6 +115,7 @@ const WeatherDashboard = () => {
 };
 
 export default WeatherDashboard;
+
 
 
 
